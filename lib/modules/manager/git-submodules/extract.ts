@@ -105,6 +105,11 @@ async function getModules(
   return res;
 }
 
+// https://git-scm.com/docs/git-ls-tree/2.33.0#_output_format
+const lsTreeRe = regEx(
+  /(^|\n)(?<mode>\d+) (?<type>\w+) (?<object>\w+)\t(?<file>[^\n]+)\n/,
+);
+
 export default async function extractPackageFile(
   _content: string,
   packageFile: string,
@@ -123,10 +128,9 @@ export default async function extractPackageFile(
   const deps = [];
   for (const { name, path } of depNames) {
     try {
-      const [currentDigest] = (await git.subModule(['status', path]))
-        .trim()
-        .replace(regEx(/^[-+]/), '')
-        .split(regEx(/\s/));
+      const currentDigest = lsTreeRe.exec(
+        await git.raw(['ls-tree', 'HEAD', path]),
+      )?.groups?.object;
       const subModuleUrl = await getUrl(git, gitModulesPath, name);
       const httpSubModuleUrl = getHttpUrl(subModuleUrl);
       const currentValue = await getBranch(

@@ -24,18 +24,19 @@ describe('modules/manager/git-submodules/extract', () => {
       const git = Git(basePath);
 
       gitMock.env.mockImplementation(() => gitMock);
-      gitMock.subModule.mockResolvedValue(
-        '4b825dc642cb6eb9a060e54bf8d69288fbee4904',
-      );
 
       gitMock.raw.mockImplementation((options) => {
-        if (
-          (is.string(options) || is.array(options, is.string)) &&
-          options.includes('remote.origin.url')
-        ) {
-          return Promise.resolve(
-            'https://github.com/renovatebot/renovate.git',
-          ) as Response<string>;
+        if (is.string(options) || is.array(options, is.string)) {
+          if (options.includes('remote.origin.url')) {
+            return Promise.resolve(
+              'https://github.com/renovatebot/renovate.git',
+            ) as Response<string>;
+          }
+          if (options.includes('ls-tree')) {
+            return Promise.resolve(
+              '160000 commit 4b825dc642cb6eb9a060e54bf8d69288fbee4904\trenovate\n',
+            ) as Response<string>;
+          }
         }
         return git.raw(options);
       });
