@@ -102,13 +102,13 @@ exports[`modules/datasource/cdnjs/index getReleases processes real data 1`] = `
       "version": "2.0.1",
     },
     {
-      "version": "2.1.0",
-    },
-    {
       "version": "2.1.0-rc.1",
     },
     {
       "version": "2.1.0-rc.2",
+    },
+    {
+      "version": "2.1.0",
     },
     {
       "version": "2.1.1",

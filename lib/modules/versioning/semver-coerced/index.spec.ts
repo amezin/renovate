@@ -18,6 +18,15 @@ describe('modules/versioning/semver-coerced/index', () => {
     it('invalid version', () => {
       expect(semverCoerced.equals('xxx', '1.2.3')).toBeFalse();
     });
+
+    it('should return false for non-equal prerelease versions', () => {
+      expect(semverCoerced.equals('1.0.0', '1.0.0-rc1')).toBeFalse();
+      expect(semverCoerced.equals('1.0.0-rc1', '1.0.0-rc2')).toBeFalse();
+    });
+
+    it('should return true for equal prerelease versions', () => {
+      expect(semverCoerced.equals('1.0.0-rc1', '1.0.0-rc1')).toBeTrue();
+    });
   });
 
   describe('.getMajor(input)', () => {
@@ -97,6 +106,15 @@ describe('modules/versioning/semver-coerced/index', () => {
 
     it('should return false if version cannot be coerced', () => {
       expect(semverCoerced.isGreaterThan('e.e.e', '4.1.0')).toBeFalse();
+    });
+
+    it('should handle prerelease versions correctly', () => {
+      expect(semverCoerced.isGreaterThan('1.0.0-rc1', '1.0.0')).toBeFalse();
+      expect(semverCoerced.isGreaterThan('1.0.0-rc2', '1.0.0-rc1')).toBeTrue();
+      expect(semverCoerced.isGreaterThan('1.0.0-rc1', '1.0.0-rc2')).toBeFalse();
+      expect(semverCoerced.isGreaterThan('1.0.0', '1.0.0-rc1')).toBeTrue();
+      expect(semverCoerced.isGreaterThan('1.0.0-rc1', '1.0.0-rc1')).toBeFalse();
+      expect(semverCoerced.isGreaterThan('1.0.0-rc2', '1.0.0-rc2')).toBeFalse();
     });
   });
 
@@ -297,6 +315,15 @@ describe('modules/versioning/semver-coerced/index', () => {
 
     it('works with invalid version', () => {
       expect(semverCoerced.sortVersions('v1.0', 'xx')).toBe(0);
+    });
+
+    it('works with prerelease versions', () => {
+      expect(semverCoerced.sortVersions('1.0.0-rc1', '1.0.0')).toBe(-1);
+      expect(semverCoerced.sortVersions('1.0.0-rc2', '1.0.0-rc1')).toBe(1);
+      expect(semverCoerced.sortVersions('1.0.0-rc1', '1.0.0-rc2')).toBe(-1);
+      expect(semverCoerced.sortVersions('1.0.0', '1.0.0-rc1')).toBe(1);
+      expect(semverCoerced.sortVersions('1.0.0-rc1', '1.0.0-rc1')).toBe(0);
+      expect(semverCoerced.sortVersions('1.0.0-rc2', '1.0.0-rc2')).toBe(0);
     });
   });
 });
